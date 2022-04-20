@@ -30,8 +30,8 @@ namespace Northwind.Repository.Models
             .OrderBy(o => o.OrderId)
             .ToList();
 
-        public OrderDetail GetOrderDetail(int id, bool trackChanges) =>
-            FindByCondition(o => o.OrderId.Equals(id), trackChanges).SingleOrDefault();
+        public OrderDetail GetOrderDetail(int orderId, int productId, bool trackChanges) =>
+            FindByCondition(o => o.OrderId.Equals(orderId) && o.ProductId.Equals(productId), trackChanges).SingleOrDefault();
 
         public void UpdateOrderDetail(OrderDetail orderDetail)
         {

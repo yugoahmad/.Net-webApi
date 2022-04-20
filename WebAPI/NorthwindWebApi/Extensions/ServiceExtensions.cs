@@ -40,5 +40,8 @@ namespace NorthwindWebApi.Extenstions
 
         public static void ConfigureRepositoryManager(this IServiceCollection service) =>
             service.AddScoped<IRepositoryManager, RepositoryManager>();
+
+        public static void ConfigureServiceManager(this IServiceCollection service) =>
+            service.AddScoped<IServiceManager, ServiceManager>();
     }
 }

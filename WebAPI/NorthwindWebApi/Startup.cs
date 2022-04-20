@@ -42,6 +42,7 @@ namespace NorthwindWebApi
 
             //layer infrastructure
             services.ConfigureRepositoryManager();
+            services.ConfigureServiceManager();
 
             //call automapper config
             services.AddAutoMapper(typeof(Startup));

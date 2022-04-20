@@ -26,5 +26,10 @@ namespace Northwind.Entities.Models
         public virtual Category Category { get; set; }
         public virtual Supplier Supplier { get; set; }
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }
+
+        public static implicit operator int(Product v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
