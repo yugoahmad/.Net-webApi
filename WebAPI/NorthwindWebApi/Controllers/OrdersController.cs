@@ -37,9 +37,14 @@ namespace NorthwindWebApi.Controllers
         }
 
         [HttpPost("checkout/{id}")]
-        public IActionResult CheckOut( int id)
+        public IActionResult CheckOut(int id)
         {
             var order = _service.CheckOut(id);
+            if (order.Item1 == -2)
+            {
+                return BadRequest(order.Item3);
+            }
+
             if (order.Item1 == -1)
             {
                 return BadRequest(order.Item3);
@@ -47,6 +52,20 @@ namespace NorthwindWebApi.Controllers
             else
             {
                 return Ok(_mapper.Map<OrdersDto>(order.Item2));
+            }
+        }
+
+        [HttpPost("shipped/{id}")]
+        public IActionResult ShipOrder([FromBody] ShippedDto shippedDto, int id)
+        {
+            var shipped = _service.Shipped(shippedDto, id);
+            if (shipped.Item1 == -1)
+            {
+                return BadRequest(shipped.Item3);
+            }
+            else
+            {
+                return Ok(_mapper.Map<OrdersDto>(shipped.Item2));
             }
         }
 
