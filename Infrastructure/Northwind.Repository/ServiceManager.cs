@@ -24,7 +24,10 @@ namespace Northwind.Repository
             Product product = new Product();
             try
             {
-                order = _repository.Orders.GetAllOrders(trackChanges: true).Where(c => c.CustomerId == custId && c.ShippedDate == null).SingleOrDefault();
+                order = _repository.Orders.GetAllOrders(trackChanges: true)
+                        .Where(c => c.CustomerId == custId && c.ShippedDate == null)
+                        .SingleOrDefault();
+
                 product = _repository.Products.GetProduct(id, trackChanges: false);
                 if (order == null)
                 {
@@ -67,6 +70,47 @@ namespace Northwind.Repository
                 return Tuple.Create(-1, orderDetail, ex.Message);
             }
             
+        }
+
+        public Tuple<int, Order, string> CheckOut(int id)
+        {
+            Order orders = new Order();
+            try
+            {
+                var order = _repository.Orders.GetOrders(id, trackChanges: true);
+                if (order == null)
+                {
+                    return Tuple.Create(-1, order, "OrderId Not Found");
+                }
+                else
+                {
+                    order = new Order();
+                    order.RequiredDate = DateTime.Now;
+
+                    List<OrderDetail> orderDetail = _repository.OrderDetails.GetAllOrderDetail(trackChanges: true)
+                                                .Where(ord => ord.OrderId == id)
+                                                .ToList();
+
+                    foreach (var item in orderDetail)
+                    {
+                        var product = _repository.Products.GetProduct(item.ProductId, trackChanges: true);
+                        product.UnitsInStock = (short?)(product.UnitsInStock - item.Quantity);
+
+                        _repository.Products.UpdateProduct(product);
+                        _repository.Save();
+                    }
+
+                    _repository.Orders.UpdateOrders(order);
+                    _repository.Save();
+
+                    return Tuple.Create(1, order, "Success");
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                return Tuple.Create(-1, orders, ex.Message);
+            }
         }
 
         public Tuple<int, IEnumerable<Product>, string> GetAllProduct(bool trackChanges)

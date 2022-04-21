@@ -11,5 +11,6 @@ namespace Northwind.Contracts
     {
         Tuple<int, IEnumerable<Product>, string> GetAllProduct(bool trackChanges);
         Tuple<int, OrderDetail, string> AddToCart(int id, short quantity, string custId, int empId, bool trackChanges);
+        Tuple<int, Order, string> CheckOut(int id);
     }
 }

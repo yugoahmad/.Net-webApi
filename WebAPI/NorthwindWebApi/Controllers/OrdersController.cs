@@ -36,6 +36,20 @@ namespace NorthwindWebApi.Controllers
 
         }
 
+        [HttpPost("checkout/{id}")]
+        public IActionResult CheckOut( int id)
+        {
+            var order = _service.CheckOut(id);
+            if (order.Item1 == -1)
+            {
+                return BadRequest(order.Item3);
+            }
+            else
+            {
+                return Ok(_mapper.Map<OrdersDto>(order.Item2));
+            }
+        }
+
         [HttpGet]
         public IActionResult GetProduct()
         {

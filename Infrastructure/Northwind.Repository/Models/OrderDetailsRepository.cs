@@ -25,7 +25,7 @@ namespace Northwind.Repository.Models
             Delete(orderDetail);
         }
 
-        public IEnumerable<OrderDetail> GetAllCategory(bool trackChanges) =>
+        public IEnumerable<OrderDetail> GetAllOrderDetail(bool trackChanges) =>
             FindAll(trackChanges)
             .OrderBy(o => o.OrderId)
             .ToList();

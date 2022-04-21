@@ -9,7 +9,7 @@ namespace Northwind.Contracts.Interface
 {
     public interface IOrderDetailsRepository
     {
-        IEnumerable<OrderDetail> GetAllCategory(bool trackChanges);
+        IEnumerable<OrderDetail> GetAllOrderDetail(bool trackChanges);
         OrderDetail GetOrderDetail(int orderId, int productId, bool trackChanges);
         void CreateOrderDetail(OrderDetail orderDetail);
         void UpdateOrderDetail(OrderDetail orderDetail);
