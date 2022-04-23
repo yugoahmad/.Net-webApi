@@ -1,4 +1,5 @@
-﻿using Northwind.Contracts.Interface;
+﻿using Microsoft.EntityFrameworkCore;
+using Northwind.Contracts.Interface;
 using Northwind.Entities.Contexts;
 using Northwind.Entities.Models;
 using System;
@@ -15,25 +16,25 @@ namespace Northwind.Repository.Models
         {
         }
 
-        public void CreateProduct(Product product)
+        public void CreateProductAsync(Product product)
         {
             Create(product);
         }
 
-        public void DeleteProduct(Product product)
+        public void DeleteProductAsync(Product product)
         {
             Delete(product);
         }
 
-        public IEnumerable<Product> GetAllProduct(bool trackChanges) =>
-            FindAll(trackChanges)
+        public async Task<IEnumerable<Product>> GetAllProductAsync(bool trackChanges) =>
+            await FindAll(trackChanges)
             .OrderBy(p => p.ProductName)
-            .ToList();
+            .ToListAsync();
 
-        public Product GetProduct(int id, bool trackChanges) =>
-            FindByCondition(p => p.ProductId.Equals(id), trackChanges).SingleOrDefault();
+        public async Task<Product> GetProductAsync(int id, bool trackChanges) =>
+            await FindByCondition(p => p.ProductId.Equals(id), trackChanges).SingleOrDefaultAsync();
 
-        public void UpdateProduct(Product product)
+        public void UpdateProductAsync(Product product)
         {
             Update(product);
         }

@@ -18,49 +18,49 @@ namespace Northwind.Repository
             _repository = repository;
         }
 
-        public Tuple<int, OrderDetail, string> AddToCart(int id, short quantity, string custId, int empId, bool trackChanges)
+        public async Task<Tuple<int, OrderDetail, string>> AddToCart(CartDto cartDto, bool trackChanges)
         {
             Order order = new Order();
             OrderDetail orderDetail = new OrderDetail();
             Product product = new Product();
             try
             {
-                order = _repository.Orders.GetAllOrders(trackChanges: true)
-                        .Where(c => c.CustomerId == custId && c.ShippedDate == null)
-                        .SingleOrDefault();
+                order =  _repository.Orders.GetAllOrdersAsync(trackChanges: true)
+                        .Result.Where(c => c.CustomerId == cartDto.CustomerId && c.ShippedDate == null)
+                        .FirstOrDefault();
 
-                product = _repository.Products.GetProduct(id, trackChanges: false);
+                product =  await _repository.Products.GetProductAsync(cartDto.ProductId, trackChanges: false);
                 if (order == null)
                 {
                     order = new Order();
-                    order.CustomerId = custId;
+                    order.CustomerId = cartDto.CustomerId;
                     order.OrderDate = DateTime.Now;
-                    order.EmployeeId = empId;
+                    order.EmployeeId = cartDto.EmployeeId;
 
-                    _repository.Orders.CreateOrders(order);
-                    _repository.Save();
+                    _repository.Orders.CreateOrdersAsync(order);
+                    await _repository.SaveAsync();
                 }
 
-                orderDetail = _repository.OrderDetails.GetOrderDetail(order.OrderId, id, trackChanges: true);
+                orderDetail = await _repository.OrderDetails.GetOrderDetailAsync(order.OrderId, cartDto.ProductId, trackChanges: true);
                 if (orderDetail == null)
                 {
                     orderDetail = new OrderDetail();
-                    orderDetail.ProductId = id;
+                    orderDetail.ProductId = cartDto.ProductId;
                     orderDetail.OrderId = order.OrderId;
-                    orderDetail.Quantity = quantity;
-                    orderDetail.UnitPrice = (decimal)((decimal)product.UnitPrice * quantity);
+                    orderDetail.Quantity = cartDto.Quantity;
+                    orderDetail.UnitPrice = (decimal)((decimal)product.UnitPrice * cartDto.Quantity);
                     orderDetail.UnitPrice = orderDetail.UnitPrice;
 
-                    _repository.OrderDetails.CreateOrderDetail(orderDetail);
-                    _repository.Save();
+                    _repository.OrderDetails.CreateOrderDetailAsync(orderDetail);
+                    await _repository.SaveAsync();
                 }
                 else
                 {
-                    orderDetail.Quantity = (short)(orderDetail.Quantity + quantity);
-                    orderDetail.UnitPrice += (decimal)(product.UnitPrice * quantity);
+                    orderDetail.Quantity = (short)(orderDetail.Quantity + cartDto.Quantity);
+                    orderDetail.UnitPrice += (decimal)(product.UnitPrice * cartDto.Quantity);
 
-                    _repository.OrderDetails.UpdateOrderDetail(orderDetail);
-                    _repository.Save();
+                    _repository.OrderDetails.UpdateOrderDetailAsync(orderDetail);
+                    await _repository.SaveAsync();
                 }
 
                 return Tuple.Create(1, orderDetail, "Success");
@@ -73,12 +73,12 @@ namespace Northwind.Repository
             
         }
 
-        public Tuple<int, Order, string> CheckOut(int id)
+        public async Task<Tuple<int, Order, string>> CheckOut(int id)
         {
             Order orders = new Order();
             try
             {
-                var order = _repository.Orders.GetOrders(id, trackChanges: true);
+                var order = await _repository.Orders.GetOrdersAsync(id, trackChanges: true);
                 if (order == null)
                 {
                     return Tuple.Create(-1, order, "OrderId Not Found");
@@ -87,27 +87,25 @@ namespace Northwind.Repository
                 {
                     order.RequiredDate = DateTime.Now;
 
-                    _repository.Orders.UpdateOrders(order);
-                    _repository.Save();
+                    _repository.Orders.UpdateOrdersAsync(order);
+                    await _repository.SaveAsync();
 
-                    List<OrderDetail> orderDetail = _repository.OrderDetails.GetAllOrderDetail(trackChanges: true)
-                                                .Where(ord => ord.OrderId == id)
+                    List<OrderDetail> orderDetail = _repository.OrderDetails.GetAllOrderDetailAsync(trackChanges: true)
+                                                .Result.Where(ord => ord.OrderId == id)
                                                 .ToList();
 
                     foreach (var item in orderDetail)
                     {
-                        var product = _repository.Products.GetProduct(item.ProductId, trackChanges: true);
+                        var product = await _repository.Products.GetProductAsync(item.ProductId, trackChanges: true);
                         product.UnitsInStock = (short?)(product.UnitsInStock - item.Quantity);
                         if(product.UnitsInStock < 0)
                         {
                             return Tuple.Create(-2, order, "Out of stock");
                         }
 
-                        _repository.Products.UpdateProduct(product);
-                        _repository.Save();
+                        _repository.Products.UpdateProductAsync(product);
+                        await _repository.SaveAsync();
                     }
-
-                    
 
                     return Tuple.Create(1, order, "Success");
                 }
@@ -119,12 +117,12 @@ namespace Northwind.Repository
             }
         }
 
-        public Tuple<int, IEnumerable<Product>, string> GetAllProduct(bool trackChanges)
+        public async Task<Tuple<int, IEnumerable<Product>, string>> GetAllProduct(bool trackChanges)
         {
             IEnumerable<Product> produst1 = null;
             try
             {
-                IEnumerable<Product> product = _repository.Products.GetAllProduct(trackChanges: false);
+                IEnumerable<Product> product = await _repository.Products.GetAllProductAsync(trackChanges: false);
 
                 return Tuple.Create(1, product, "success");
             }
@@ -135,13 +133,13 @@ namespace Northwind.Repository
             
         }
 
-        public Tuple<int, Order, string> Shipped(ShippedDto shippedDto, int id)
+        public async Task<Tuple<int, Order, string>> Shipped(ShippedDto shippedDto, int id)
         {
             Order orders = new Order();
             try
             {
-                var order = _repository.Orders.GetOrders(id, trackChanges: true);
-                var customer = _repository.Customer.GetCustomer(order.CustomerId, trackChanges: true);
+                var order = await _repository.Orders.GetOrdersAsync(id, trackChanges: true);
+                var customer = await _repository.Customer.GetCustomerAsync(order.CustomerId, trackChanges: true);
                 if (order == null)
                 {
                     return Tuple.Create(-1, order, "OrderId Not Found");
@@ -158,8 +156,8 @@ namespace Northwind.Repository
                     order.ShipName = shippedDto.ShipName;
                     order.ShippedDate = shippedDto.ShippedDate;
 
-                    _repository.Orders.UpdateOrders(order);
-                    _repository.Save();
+                    _repository.Orders.UpdateOrdersAsync(order);
+                    await _repository.SaveAsync();
 
                     return Tuple.Create(1, order, "Success");
                 }

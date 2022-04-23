@@ -9,10 +9,10 @@ namespace Northwind.Contracts.Interface
 {
     public interface IOrdersRepository
     {
-        IEnumerable<Order> GetAllOrders(bool trackChanges);
-        Order GetOrders(int id, bool trackChanges);
-        void CreateOrders(Order order);
-        void UpdateOrders(Order order);
-        void DeleteOrders(Order order);
+        Task<IEnumerable<Order>> GetAllOrdersAsync(bool trackChanges);
+        Task<Order> GetOrdersAsync(int id, bool trackChanges);
+        void CreateOrdersAsync(Order order);
+        void UpdateOrdersAsync(Order order);
+        void DeleteOrdersAsync(Order order);
     }
 }

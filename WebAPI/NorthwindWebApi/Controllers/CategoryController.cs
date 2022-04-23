@@ -7,6 +7,8 @@ using Northwind.Entities.DataTransferObject;
 using AutoMapper;
 using System.Collections.Generic;
 using Northwind.Entities.Models;
+using System.Threading.Tasks;
+using Northwind.Entities.RequestFeatures;
 
 namespace NorthwindWebApi.Controllers
 {
@@ -26,11 +28,11 @@ namespace NorthwindWebApi.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetCategories()
+        public async Task<IActionResult> GetCategories()
         {
             try
             {
-                var categories = _repository.Category.GetAllCategory(trackChanges: false);
+                var categories = await _repository.Category.GetAllCategoryAsync(trackChanges: false);
 
                 //replace by categoryDto
 
@@ -54,9 +56,9 @@ namespace NorthwindWebApi.Controllers
         }
 
         [HttpGet("{id}", Name = "CategoryById")]
-        public IActionResult GetCategory(int id)
+        public async Task<IActionResult> GetCategory(int id)
         {
-            var category = _repository.Category.GetCategory(id, trackChanges : false);
+            var category = await _repository.Category.GetCategoryAsync(id, trackChanges : false);
             if (category == null)
             {
                 _logger.LogInfo($"Category with id : {id} doesn't exist");
@@ -70,7 +72,7 @@ namespace NorthwindWebApi.Controllers
         }
 
         [HttpPost] 
-        public IActionResult CreateCategory([FromBody] CategoryDto categoryDto)
+        public async Task<IActionResult> CreateCategory([FromBody] CategoryDto categoryDto)
         {
             if (categoryDto == null)
             {
@@ -79,31 +81,31 @@ namespace NorthwindWebApi.Controllers
             }
 
             var categoryEntity = _mapper.Map<Category>(categoryDto);
-            _repository.Category.CreateCategory(categoryEntity);
-            _repository.Save();
+            _repository.Category.CreateCategoryAsync(categoryEntity);
+            await _repository.SaveAsync();
 
             var categoryResult = _mapper.Map<CategoryDto>(categoryEntity);
             return CreatedAtRoute("CategoryById", new {id = categoryResult.categoryId}, categoryResult);
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteCategory(int id)
+        public async Task<IActionResult> DeleteCategory(int id)
         {
-            var category = _repository.Category.GetCategory(id, trackChanges: false);
+            var category = await _repository.Category.GetCategoryAsync(id, trackChanges: false);
             if (category == null)
             {
                 _logger.LogInfo($"Category with Id : {id} not found");
                 return NotFound();
             }
 
-            _repository.Category.DeleteCategory(category);
-            _repository.Save();
+            _repository.Category.DeleteCategoryAsync(category);
+            await _repository.SaveAsync();
 
             return NoContent();
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateCategory(int id, [FromBody] CategoryDto categoryDto)
+        public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryDto categoryDto)
         {
             if (categoryDto == null)
             {
@@ -111,7 +113,7 @@ namespace NorthwindWebApi.Controllers
                 return BadRequest($"Categry must not be null");
             }
 
-            var categoryEntity = _repository.Category.GetCategory(id, trackChanges: true);
+            var categoryEntity = await _repository.Category.GetCategoryAsync(id, trackChanges: true);
             if (categoryEntity == null)
             {
                 _logger.LogInfo($"Category with Id : {id} not found");
@@ -119,9 +121,27 @@ namespace NorthwindWebApi.Controllers
             }
 
             _mapper.Map(categoryDto, categoryEntity);
-            _repository.Category.UpdateCategory(categoryEntity);
-            _repository.Save();
+            _repository.Category.UpdateCategoryAsync(categoryEntity);
+            await _repository.SaveAsync();
             return NoContent();
+        }
+
+        [HttpGet("pagination")]
+        public async Task<IActionResult> GetPagination([FromQuery] CategoryParameters categoryParameters)
+        {
+            var categoryPage = await _repository.Category.GetPaginationCategoryAsync(categoryParameters, trackChanges: false);
+            
+            var categoryDto = _mapper.Map<IEnumerable<CategoryDto>>(categoryPage);
+            return Ok(categoryDto);
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> GetSearchCategory([FromQuery] CategoryParameters categoryParameters)
+        {
+            var categorySearch = await _repository.Category.GetSearchCategory(categoryParameters, trackChanges: false);
+
+            var categoryDto = _mapper.Map<IEnumerable<CategoryDto>>(categorySearch);
+            return Ok(categoryDto);
         }
     }
 }

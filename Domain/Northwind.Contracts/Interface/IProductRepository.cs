@@ -9,10 +9,10 @@ namespace Northwind.Contracts.Interface
 {
     public interface IProductRepository
     {
-        IEnumerable<Product> GetAllProduct(bool trackChanges);
-        Product GetProduct(int id, bool trackChanges);
-        void CreateProduct(Product product);
-        void UpdateProduct(Product product);
-        void DeleteProduct(Product product);
+        Task<IEnumerable<Product>> GetAllProductAsync(bool trackChanges);
+        Task<Product> GetProductAsync(int id, bool trackChanges);
+        void CreateProductAsync(Product product);
+        void UpdateProductAsync(Product product);
+        void DeleteProductAsync(Product product);
     }
 }

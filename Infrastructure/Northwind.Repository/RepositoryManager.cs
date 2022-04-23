@@ -87,5 +87,10 @@ namespace Northwind.Repository
         {
             _repositoryContext.SaveChanges();
         }
+
+        public async Task SaveAsync()
+        {
+            await _repositoryContext.SaveChangesAsync();
+        }
     }
 }

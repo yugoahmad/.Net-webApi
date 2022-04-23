@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Northwind.Entities.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,5 +12,6 @@ namespace Northwind.Entities.DataTransferObject
         public int categoryId { get; set; }
         public string categoryName { get; set; }
         public string description { get; set; }
+        public ICollection<Product> Products { get; set; }
     }
 }

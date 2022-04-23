@@ -9,10 +9,10 @@ namespace Northwind.Contracts.Interface
 {
     public interface IOrderDetailsRepository
     {
-        IEnumerable<OrderDetail> GetAllOrderDetail(bool trackChanges);
-        OrderDetail GetOrderDetail(int orderId, int productId, bool trackChanges);
-        void CreateOrderDetail(OrderDetail orderDetail);
-        void UpdateOrderDetail(OrderDetail orderDetail);
-        void DeleteOrderDetail(OrderDetail orderDetail);
+        Task<IEnumerable<OrderDetail>> GetAllOrderDetailAsync(bool trackChanges);
+        Task<OrderDetail> GetOrderDetailAsync(int orderId, int productId, bool trackChanges);
+        void CreateOrderDetailAsync(OrderDetail orderDetail);
+        void UpdateOrderDetailAsync(OrderDetail orderDetail);
+        void DeleteOrderDetailAsync(OrderDetail orderDetail);
     }
 }

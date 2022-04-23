@@ -1,4 +1,5 @@
-﻿using Northwind.Contracts.Interface;
+﻿using Microsoft.EntityFrameworkCore;
+using Northwind.Contracts.Interface;
 using Northwind.Entities.Contexts;
 using Northwind.Entities.Models;
 using System;
@@ -15,25 +16,25 @@ namespace Northwind.Repository.Models
         {
         }
 
-        public void CreateOrders(Order order)
+        public void CreateOrdersAsync(Order order)
         {
             Create(order);
         }
 
-        public void DeleteOrders(Order order)
+        public void DeleteOrdersAsync(Order order)
         {
             Delete(order);
         }
 
-        public IEnumerable<Order> GetAllOrders(bool trackChanges) =>
-            FindAll(trackChanges)
+        public async Task<IEnumerable<Order>> GetAllOrdersAsync(bool trackChanges) =>
+            await FindAll(trackChanges)
             .OrderBy(o => o.OrderId)
-            .ToList();
+            .ToListAsync();
 
-        public Order GetOrders(int id, bool trackChanges) =>
-            FindByCondition(o => o.OrderId.Equals(id), trackChanges).SingleOrDefault();
+        public async Task<Order> GetOrdersAsync(int id, bool trackChanges) =>
+            await FindByCondition(o => o.OrderId.Equals(id), trackChanges).SingleOrDefaultAsync();
 
-        public void UpdateOrders(Order order)
+        public void UpdateOrdersAsync(Order order)
         {
             Update(order);
         }

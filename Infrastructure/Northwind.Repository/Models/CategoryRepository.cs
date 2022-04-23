@@ -1,6 +1,8 @@
-﻿using Northwind.Contracts.Interface;
+﻿using Microsoft.EntityFrameworkCore;
+using Northwind.Contracts.Interface;
 using Northwind.Entities.Contexts;
 using Northwind.Entities.Models;
+using Northwind.Entities.RequestFeatures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,25 +17,49 @@ namespace Northwind.Repository.Models
         {
         }
 
-        void ICategoryRepository.CreateCategory(Category category)
+        public async Task<IEnumerable<Category>> GetPaginationCategoryAsync(CategoryParameters categoryParameters, bool trackChanges)
+        {
+            return await FindAll(trackChanges)
+                         .OrderBy(c => c.CategoryName)
+                         .Skip((categoryParameters.PageNumber - 1) * categoryParameters.PageSize)
+                         .Take(categoryParameters.PageSize)
+                         .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Category>> GetSearchCategory(CategoryParameters categoryParameters, bool trackChanges)
+        {
+            if (string.IsNullOrWhiteSpace(categoryParameters.SearchCategory))
+            {
+                return await FindAll(trackChanges).ToListAsync();
+            }
+
+            var lowerToCase = categoryParameters.SearchCategory.Trim().ToLower();
+            return await FindAll(trackChanges)
+                         .Where(c => c.CategoryName.ToLower().Contains(lowerToCase))
+                         .Include(c => c.Products)
+                         .OrderBy(c => c.CategoryName)
+                         .ToListAsync();
+        }
+
+        void ICategoryRepository.CreateCategoryAsync(Category category)
         {
             Create(category);
         }
 
-        void ICategoryRepository.DeleteCategory(Category category)
+        void ICategoryRepository.DeleteCategoryAsync(Category category)
         {
             Delete(category);
         }
 
-        IEnumerable<Category> ICategoryRepository.GetAllCategory(bool trackChanges) =>
-            FindAll(trackChanges)
-                .OrderBy(c => c.CategoryName)
-                .ToList();
+        async Task<IEnumerable<Category>> ICategoryRepository.GetAllCategoryAsync(bool trackChanges) =>
+            await FindAll(trackChanges)
+                  .OrderBy(c => c.CategoryName)
+                  .ToListAsync();
 
-        Category ICategoryRepository.GetCategory(int id, bool trackChanges) =>
-            FindByCondition(c => c.CategoryId.Equals(id), trackChanges).SingleOrDefault();
+        async Task<Category> ICategoryRepository.GetCategoryAsync(int id, bool trackChanges) =>
+            await FindByCondition(c => c.CategoryId.Equals(id), trackChanges).SingleOrDefaultAsync();
 
-        void ICategoryRepository.UpdateCategory(Category category)
+        void ICategoryRepository.UpdateCategoryAsync(Category category)
         {
             Update(category);
         }

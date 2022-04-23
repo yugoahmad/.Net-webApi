@@ -7,6 +7,7 @@ using Northwind.Entities.Models;
 using System.Linq;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NorthwindWebApi.Controllers
 {
@@ -28,18 +29,18 @@ namespace NorthwindWebApi.Controllers
         }
 
         [HttpPost("addToCart")]
-        public IActionResult CreateOrder([FromBody] CartDto cartDto)
+        public async Task<IActionResult> CreateOrder([FromBody] CartDto cartDto)
         {
-            var orderDetail = _service.AddToCart(cartDto.ProductId, cartDto.Quantity, cartDto.CustomerId, cartDto.EmployeeId, trackChanges: true);
+            var orderDetail = await _service.AddToCart(cartDto, trackChanges: true);
             
             return Ok(_mapper.Map<OrderDetailsDto>(orderDetail.Item2));
 
         }
 
         [HttpPost("checkout/{id}")]
-        public IActionResult CheckOut(int id)
+        public async Task<IActionResult> CheckOut(int id)
         {
-            var order = _service.CheckOut(id);
+            var order = await _service.CheckOut(id);
             if (order.Item1 == -2)
             {
                 return BadRequest(order.Item3);
@@ -56,9 +57,9 @@ namespace NorthwindWebApi.Controllers
         }
 
         [HttpPost("shipped/{id}")]
-        public IActionResult ShipOrder([FromBody] ShippedDto shippedDto, int id)
+        public async Task<IActionResult> ShipOrder([FromBody] ShippedDto shippedDto, int id)
         {
-            var shipped = _service.Shipped(shippedDto, id);
+            var shipped = await _service.Shipped(shippedDto, id);
             if (shipped.Item1 == -1)
             {
                 return BadRequest(shipped.Item3);
@@ -70,11 +71,11 @@ namespace NorthwindWebApi.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetProduct()
+        public async Task<IActionResult> GetProduct()
         {
             try
             {
-                var product = _service.GetAllProduct(trackChanges: false);
+                var product = await _service.GetAllProduct(trackChanges: false);
                 return Ok(_mapper.Map<IEnumerable<ProductDto>>(product.Item2));
             }
             catch (Exception ex)
