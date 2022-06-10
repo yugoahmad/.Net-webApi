@@ -41,6 +41,12 @@ namespace NorthwindWebApi
             services.ConfigureLoggerService();
             services.ConfigureDbContext(Configuration);
 
+            //call security identity
+            services.AddAuthentication();
+            services.ConfigureIdentity();
+            services.ConfigureJWT(Configuration);
+            services.ConfigureAuthenticationManager();
+
             //layer infrastructure
             services.ConfigureRepositoryManager();
             services.ConfigureServiceManager();
@@ -91,6 +97,8 @@ namespace NorthwindWebApi
 
             app.UseRouting();
 
+            //add authorization
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

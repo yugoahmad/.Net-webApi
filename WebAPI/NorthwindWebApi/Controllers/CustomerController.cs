@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +28,7 @@ namespace NorthwindWebApi.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public async Task<IActionResult> GetCustomer()
         {
             try

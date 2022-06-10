@@ -1,13 +1,15 @@
 ﻿using System;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Northwind.Entities.Configuration;
 using Northwind.Entities.Models;
 
 #nullable disable
 
 namespace Northwind.Entities.Contexts
 {
-    public partial class RepositoryContext : DbContext
+    public partial class RepositoryContext : IdentityDbContext<User>
     {
         public RepositoryContext()
         {
@@ -62,6 +64,9 @@ namespace Northwind.Entities.Contexts
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfiguration(new RoleConfiguration());
+
             modelBuilder.HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP1_CI_AS");
 
             modelBuilder.Entity<AlphabeticalListOfProduct>(entity =>
